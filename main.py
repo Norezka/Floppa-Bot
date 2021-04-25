@@ -282,5 +282,4 @@ async def next_song(ctx, voice_connection):
 
 
 db_session.global_init("db/users.sqlite")
-bot.run('ODM0ODA1NjE1ODk2Mjk3NTQz.YIGPUA.he_d_4mxBJ0LBLcXJC_lAI2oP4Q')
-# bot.run(os.environ['BOT_TOKEN'])
+bot.run(os.environ['BOT_TOKEN'])
