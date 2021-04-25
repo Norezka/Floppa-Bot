@@ -22,6 +22,8 @@ audio_index = {}
 async def on_ready():
     print('Floppa Bot готов.\n\n')
 
+    await bot.change_presence(activity=discord.Game(name='Для помощи напишите *help'))
+
 
 @bot.command(name='help', aliases=['commands'])
 async def help(ctx):
@@ -186,7 +188,7 @@ async def repeat(ctx):
         await ctx.send(':x: **Вы должны находиться в голосовом канале с ботом**')
         print(f'\n{ctx.author} попытался поставить очередь на повторение.\n')
     elif voice_connection.is_playing() is True:
-        if is_repeating:
+        if is_repeating[ctx.guild.id]:
             is_repeating[ctx.guild.id] = False
             await ctx.send(embed=discord.Embed(description=f'{ctx.author.mention} убрал очередь с повторения.',
                                                colour=0xa84300))
