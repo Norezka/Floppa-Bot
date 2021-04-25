@@ -101,8 +101,16 @@ async def play(ctx, *, video='Пусто'):
         if 'youtube.com' in video:
             get(video)
         else:
-            results = YoutubeSearch(video, max_results=1).to_dict()
-            video = f'https://www.youtube.com{results[0]["url_suffix"]}'
+            results = YoutubeSearch(video, max_results=5).to_dict()
+            max_view = '0'
+            for i in results:
+                if max_view < i['views']:
+                    max_view = i['views']
+            for i in range(len(results)):
+                if max_view == results[i]['views']:
+                    index = i
+                    break
+            video = f'https://www.youtube.com{results[index]["url_suffix"]}'
             get(video)
 
         # Скачиваем видео
