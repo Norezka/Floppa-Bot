@@ -141,8 +141,7 @@ async def play(ctx, *, video='Пусто'):
 
             # Включаем аудио
             FFMPEG_OPTS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
-            audio = discord.FFmpegPCMAudio(video_info['formats'][0]['url'],
-                                           **FFMPEG_OPTS, executable="ffmpeg/ffmpeg.exe")
+            audio = discord.FFmpegPCMAudio(video_info['formats'][0]['url'], **FFMPEG_OPTS)
             voice_connection.play(source=audio)
 
             # Ждем пока видео доиграет
@@ -271,8 +270,7 @@ async def next_song(ctx, voice_connection):
 
         # Включаем аудио
         FFMPEG_OPTS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
-        audio = discord.FFmpegPCMAudio(video_info['formats'][0]['url'],
-                                       **FFMPEG_OPTS, executable="ffmpeg/ffmpeg.exe")
+        audio = discord.FFmpegPCMAudio(video_info['formats'][0]['url'], **FFMPEG_OPTS)
         voice_connection.play(source=audio)
         while voice_connection.is_playing():
             await sleep(1)
