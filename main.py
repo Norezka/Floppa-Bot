@@ -39,18 +39,21 @@ async def help(ctx):
 
 @bot.command(name='join')
 async def join(ctx):
-    if ctx.author.voice.channel is not None:
-        voice_channel = ctx.author.voice.channel
-        try:
-            await voice_channel.connect()
-        except Exception:
-            for i in bot.voice_clients:
-                if i.guild == ctx.guild:
-                    voice_connection = i
-            await voice_connection.move_to(voice_channel)
+    try:
+        if ctx.author.voice.channel is not None:
+            voice_channel = ctx.author.voice.channel
+            try:
+                await voice_channel.connect()
+            except Exception:
+                for i in bot.voice_clients:
+                    if i.guild == ctx.guild:
+                        voice_connection = i
+                await voice_connection.move_to(voice_channel)
 
-        print(f'Подключился к голосовому каналу к {ctx.author}')
-    else:
+            print(f'Подключился к голосовому каналу к {ctx.author}')
+        else:
+            await ctx.send(':x: **Вы должны находиться в голосовом канале**')
+    except Exception:
         await ctx.send(':x: **Вы должны находиться в голосовом канале**')
 
 
@@ -233,9 +236,12 @@ async def stats(ctx):
         songs_value = f'{user.count_songs}\n{songs_value}'
         count += 1
     emb = discord.Embed(title='**Рейтинг**', colour=0xa84300)
-    emb.add_field(name='Пользователь', value=names_value)
-    emb.add_field(name='Заказал песен', value=songs_value)
-    await ctx.send(embed=emb)
+    try:
+        emb.add_field(name='Пользователь', value=names_value)
+        emb.add_field(name='Заказал песен', value=songs_value)
+        await ctx.send(embed=emb)
+    except Exception:
+        await ctx.send('Рейтинг не сформирован. Никто не запрашивал песни')
 
 
 async def next_song(ctx, voice_connection):
@@ -276,4 +282,5 @@ async def next_song(ctx, voice_connection):
 
 
 db_session.global_init("db/users.sqlite")
-bot.run(os.environ['BOT_TOKEN'])
+bot.run('ODM0ODA1NjE1ODk2Mjk3NTQz.YIGPUA.he_d_4mxBJ0LBLcXJC_lAI2oP4Q')
+# bot.run(os.environ['BOT_TOKEN'])
