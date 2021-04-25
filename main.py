@@ -6,6 +6,7 @@ from requests import get
 from discord.ext import commands
 from data import db_session
 from data.users import User
+from youtube_search import YoutubeSearch
 
 
 bot = commands.Bot(command_prefix='*')
@@ -97,17 +98,16 @@ async def play(ctx, *, video='Пусто'):
         }
 
         # Ищем видео на ютубе
+        if 'youtube.com' in video:
+            get(video)
+        else:
+            results = YoutubeSearch(video, max_results=1).to_dict()
+            video = f'https://www.youtube.com{results[0]["url_suffix"]}'
+            get(video)
+
+        # Скачиваем видео
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            try:
-                try:
-                    get(video)
-                except Exception:
-                    video_info = ydl.extract_info(f"ytsearch:{video}", download=False)['entries'][0]
-                else:
-                    video_info = ydl.extract_info(video, download=False)
-            except Exception:
-                await ctx.send('Не смог найти такое видео')
-                return None
+            video_info = ydl.extract_info(video, download=False)
 
         global queue, is_repeating
         try:
@@ -157,15 +157,18 @@ async def play(ctx, *, video='Пусто'):
 
 @bot.command(name='skip', aliases=['s'])
 async def skip(ctx):
-    voice_connection = None
-    for i in bot.voice_clients:
-        if i.channel == ctx.author.voice.channel:
-            voice_connection = i
+    try:
+        voice_connection = None
+        for i in bot.voice_clients:
+            if i.channel == ctx.author.voice.channel:
+                voice_connection = i
+    except Exception:
+        await ctx.send(':x: **Вы должны находиться в голосовом канале с ботом**')
+        print(f'\n{ctx.author} попытался пропустить видео.\n')
 
     if ctx.author.voice is None or voice_connection is None:
         await ctx.send(':x: **Вы должны находиться в голосовом канале с ботом**')
         print(f'\n{ctx.author} попытался пропустить видео.\n')
-        return None
     else:
         global queue
         if len(queue[ctx.guild.id]) != 0:
@@ -206,10 +209,14 @@ async def repeat(ctx):
 
 @bot.command(name='leave')
 async def leave(ctx):
-    voice_connection = None
-    for i in bot.voice_clients:
-        if i.channel == ctx.author.voice.channel:
-            voice_connection = i
+    try:
+        voice_connection = None
+        for i in bot.voice_clients:
+            if i.channel == ctx.author.voice.channel:
+                voice_connection = i
+    except Exception:
+        await ctx.send(':x: **Вы должны находиться в голосовом канале с ботом**')
+        print(f'\n{ctx.author} попытался остановить вопроизведение.\n')
 
     if ctx.author.voice is None or voice_connection is None:
         await ctx.send(':x: **Вы должны находиться в голосовом канале с ботом**')
