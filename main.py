@@ -69,6 +69,8 @@ async def play(ctx, *, video='Пусто'):
         await ctx.send(':x: **Вы должны находиться в голосовом канале**')
         return None
     else:
+        message = await ctx.send('Загрузка...')
+
         # Подключаемся к каналу, если уже не подключены
         voice_channel = ctx.author.voice.channel
         try:
@@ -138,7 +140,9 @@ async def play(ctx, *, video='Пусто'):
             db_sess.add(user)
         db_sess.commit()
 
-        if voice_connection.is_playing():
+        await message.delete()
+
+        if len(queue[ctx.guild.id]) > 1:
             await ctx.send(embed=discord.Embed(title=f'Добавил: **{video_info["title"]}**'
                                                      f' в очередь на позицию **{len(queue[ctx.guild.id])}**',
                                                description=f'Запросил: {ctx.author.mention}', colour=0xa84300))
