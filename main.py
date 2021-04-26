@@ -124,6 +124,8 @@ async def play(ctx, *, video='Пусто'):
                 get(video)
         except Exception:
             await ctx.send(':x: **Не смог найти такое видео**')
+            await message.delete()
+            return None
 
         # Скачиваем видео
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
