@@ -1,3 +1,6 @@
+# Ссылка на добавление бота на сервер
+# https://discord.com/api/oauth2/authorize?client_id=834805615896297543&permissions=8&scope=bot
+
 import discord
 import os
 import youtube_dl
@@ -103,15 +106,19 @@ async def play(ctx, *, video='Пусто'):
         if 'youtube.com' in video:
             get(video)
         else:
-            results = YoutubeSearch(video, max_results=5).to_dict()
-            max_view = '0'
+            results = YoutubeSearch(video, max_results=3).to_dict()
+            max_views = 0
             for i in results:
-                if max_view < i['views']:
-                    max_view = i['views']
+                views = int(''.join(i['views'].split()[:-1]))
+                if max_views < views:
+                    max_views = views
             for i in range(len(results)):
-                if max_view == results[i]['views']:
+                views = int(''.join(results[i]['views'].split()[:-1]))
+                if max_views == views:
                     index = i
                     break
+                else:
+                    print(max_views, views)
             video = f'https://www.youtube.com{results[index]["url_suffix"]}'
             get(video)
 
