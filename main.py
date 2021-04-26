@@ -109,11 +109,11 @@ async def play(ctx, *, video='Пусто'):
             results = YoutubeSearch(video, max_results=3).to_dict()
             max_views = 0
             for i in results:
-                views = int(''.join(i['views'].split()[:-1]))
+                views = int(''.join((''.join(i['views'].split()[:-1])).split(',')))
                 if max_views < views:
                     max_views = views
             for i in range(len(results)):
-                views = int(''.join(results[i]['views'].split()[:-1]))
+                views = int(''.join((''.join(results[i]['views'].split()[:-1])).split(',')))
                 if max_views == views:
                     index = i
                     break
@@ -308,4 +308,5 @@ async def next_song(ctx, voice_connection):
 
 
 db_session.global_init("db/users.sqlite")
-bot.run(os.environ['BOT_TOKEN'])
+bot.run('ODM0ODA1NjE1ODk2Mjk3NTQz.YIGPUA.INxa6I1EeYcQAr-GIQpYqdsvX8g')
+#bot.run(os.environ['BOT_TOKEN'])
