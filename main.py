@@ -103,24 +103,27 @@ async def play(ctx, *, video='Пусто'):
         }
 
         # Ищем видео на ютубе
-        if 'youtube.com' in video:
-            get(video)
-        else:
-            results = YoutubeSearch(video, max_results=3).to_dict()
-            max_views = 0
-            for i in results:
-                views = int(''.join((''.join(i['views'].split()[:-1])).split(',')))
-                if max_views < views:
-                    max_views = views
-            for i in range(len(results)):
-                views = int(''.join((''.join(results[i]['views'].split()[:-1])).split(',')))
-                if max_views == views:
-                    index = i
-                    break
-                else:
-                    print(max_views, views)
-            video = f'https://www.youtube.com{results[index]["url_suffix"]}'
-            get(video)
+        try:
+            if 'youtube.com' in video:
+                get(video)
+            else:
+                results = YoutubeSearch(video, max_results=3).to_dict()
+                max_views = 0
+                for i in results:
+                    views = int(''.join((''.join(i['views'].split()[:-1])).split(',')))
+                    if max_views < views:
+                        max_views = views
+                for i in range(len(results)):
+                    views = int(''.join((''.join(results[i]['views'].split()[:-1])).split(',')))
+                    if max_views == views:
+                        index = i
+                        break
+                    else:
+                        print(max_views, views)
+                video = f'https://www.youtube.com{results[index]["url_suffix"]}'
+                get(video)
+        except Exception:
+            await ctx.send(':x: **Не смог найти такое видео**')
 
         # Скачиваем видео
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
