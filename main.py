@@ -9,7 +9,6 @@ from requests import get
 from discord.ext import commands
 from data import db_session
 from data.users import User
-from youtube_search import YoutubeSearch
 
 
 bot = commands.Bot(command_prefix='*')
@@ -102,34 +101,21 @@ async def play(ctx, *, video='Пусто'):
                 'preferredquality': '192', }]
         }
 
-        # Ищем видео на ютубе
+        # Скачиваем видео
         try:
-            if 'youtube.com' in video:
-                get(video)
-            else:
-                results = YoutubeSearch(video, max_results=3).to_dict()
-                max_views = 0
-                for i in results:
-                    views = int(''.join((''.join(i['views'].split()[:-1])).split(',')))
-                    if max_views < views:
-                        max_views = views
-                for i in range(len(results)):
-                    views = int(''.join((''.join(results[i]['views'].split()[:-1])).split(',')))
-                    if max_views == views:
-                        index = i
-                        break
-                    else:
-                        print(max_views, views)
-                video = f'https://www.youtube.com{results[index]["url_suffix"]}'
-                get(video)
+            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                if 'youtube.com' not in video:
+                    videos = ydl.extract_info(f"ytsearch3:{video}", download=False)['entries']
+                    video_info = {'view_count': 0}
+                    for i in videos:
+                        if i['view_count'] > video_info['view_count']:
+                            video_info = i
+                else:
+                    video_info = ydl.extract_info(video, download=False)
         except Exception:
             await ctx.send(':x: **Не смог найти такое видео**')
             await message.delete()
             return None
-
-        # Скачиваем видео
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            video_info = ydl.extract_info(video, download=False)
 
         global queue, is_repeating
         try:
@@ -313,4 +299,5 @@ async def next_song(ctx, voice_connection):
 
 
 db_session.global_init("db/users.sqlite")
-bot.run(os.environ['BOT_TOKEN'])
+bot.run('ODM0ODA1NjE1ODk2Mjk3NTQz.YIGPUA.T4iFMc2827sE90-wwQKCaKdHLU0')
+#bot.run(os.environ['BOT_TOKEN'])
