@@ -5,10 +5,7 @@ import discord
 import os
 import youtube_dl
 from asyncio import sleep
-from requests import get
 from discord.ext import commands
-from data import db_session
-from data.users import User
 
 
 bot = commands.Bot(command_prefix='*')
@@ -36,8 +33,7 @@ async def help(ctx):
                                                    'на YouTube*** - включить видео\n'
                                                    '`*skip` - пропустить текущее видео\n'
                                                    '`*repeat` - повторять очередь\n'
-                                                   '`*leave` - остановить воспроизведение\n'
-                                                   '`*stats` - показать статистику о запросах',
+                                                   '`*leave` - остановить воспроизведение\n',
                                        colour=0xa84300))
     print(f'\n{ctx.author} запросил правила.\n')
 
@@ -123,20 +119,6 @@ async def play(ctx, *, video='Пусто'):
         except Exception:
             queue[ctx.guild.id] = [(video_info, ctx.author, ctx)]
             is_repeating[ctx.guild.id] = False
-
-        user = False
-        db_sess = db_session.create_session()
-        for i in db_sess.query(User).filter(User.guild_id == ctx.guild.id, User.user_id == ctx.author.id):
-            user = i
-        if user:
-            user.count_songs += 1
-        else:
-            user = User()
-            user.guild_id = ctx.guild.id
-            user.user_id = ctx.author.id
-            user.count_songs = 1
-            db_sess.add(user)
-        db_sess.commit()
 
         await message.delete()
 
@@ -239,29 +221,6 @@ async def leave(ctx):
         print(f'\n{ctx.author} остановил вопроизведение.\n')
 
 
-@bot.command(name='stats')
-async def stats(ctx):
-    db_sess = db_session.create_session()
-    names_value = ''
-    songs_value = ''
-    count = 1
-    for user in db_sess.query(User).order_by(User.count_songs).filter(User.guild_id == ctx.guild.id):
-        if count == 11:
-            break
-        discord_user = await ctx.guild.fetch_member(user.user_id)
-
-        names_value = f'{discord_user.mention}\n{names_value}'
-        songs_value = f'{user.count_songs}\n{songs_value}'
-        count += 1
-    emb = discord.Embed(title='**Рейтинг**', colour=0xa84300)
-    try:
-        emb.add_field(name='Пользователь', value=names_value)
-        emb.add_field(name='Заказал песен', value=songs_value)
-        await ctx.send(embed=emb)
-    except Exception:
-        await ctx.send('Рейтинг не сформирован. Никто не запрашивал песни')
-
-
 async def next_song(ctx, voice_connection):
     global queue, is_repeating, audio_index
     if is_repeating[ctx.guild.id] is False:
@@ -298,5 +257,4 @@ async def next_song(ctx, voice_connection):
         print(f'\n{author} запросил включить {video_info["title"]}\n')
 
 
-db_session.global_init("db/users.sqlite")
 bot.run(os.environ['BOT_TOKEN'])
